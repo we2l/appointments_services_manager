@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Validations;
+
+use App\Enums\MessageExceptionEnum;
+use App\Exceptions\AppointmentsException;
+use App\Models\Appointments;
+use App\Repositories\Contracts\AppointmentsRepositoryInterface;
+use Carbon\Carbon;
+
+readonly class AppointmentsValidation
+{
+    public function __construct(
+        private AppointmentsRepositoryInterface $appointmentsRepository
+    )
+    {}
+
+    /**
+     * @param int $idAppointment
+     * @return void
+     * @throws AppointmentsException
+     */
+    public function ensureIfAppointmentExists(int $idAppointment) : void
+    {
+        $appointment = $this->appointmentsRepository->getAppointmentById($idAppointment);
+        if(!$appointment) {
+            throw new AppointmentsException(MessageExceptionEnum::APPOINTMENT_NOT_FOUND->value);
+        }
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     * @throws AppointmentsException
+     */
+    public function ensureAppointmentExists(array $data) : void
+    {
+        $hasConflitTime = $this->appointmentsRepository->userHasAppointmentAt($data['user_id'], $data['scheduled_at']);
+        if($hasConflitTime) {
+            throw new AppointmentsException(MessageExceptionEnum::USER_HAS_APPOINTMENT_IN_THIS_TIME->value);
+        }
+    }
+}

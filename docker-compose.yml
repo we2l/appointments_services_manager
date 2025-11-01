@@ -52,8 +52,8 @@ services:
     container_name: mailhog
     restart: always
     ports:
-      - "1026:1025"  # porta SMTP
-      - "8025:8025"  # painel web
+      - "1026:1025"
+      - "8025:8025"
     networks:
       - laravel
 

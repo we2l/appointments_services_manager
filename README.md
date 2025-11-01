@@ -18,3 +18,18 @@ docker compose up
 docker compose exec app bash
 php artisan migrate
 ```
+
+### Como testar
+
+- Executar este comando para subir os containers docker:
+````
+docker compose up
+````
+ou, dependendo da versão do seu docker:
+```
+docker-compose up
+```
+- Em um novo terminal, executar o seguinte comando para inicar o worker das filas:
+```
+php artisan queue:work
+```

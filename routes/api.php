@@ -1,18 +1,4 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-Route::get('/health', function () {
-    return response()->json([
-        'teste' => 'ok'
-    ]);
-});
+require __DIR__ . '/api/auth.php';
+require __DIR__ . '/api/appointments.php';
