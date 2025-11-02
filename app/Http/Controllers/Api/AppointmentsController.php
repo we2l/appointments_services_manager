@@ -3,16 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CancelAppointmentsRequest;
 use App\Http\Requests\IndexAppointmentsRequest;
-use App\Http\Requests\ShowAppointmentsRequest;
 use App\Http\Requests\StoreAppointmentsRequest;
 use App\Http\Requests\UpdateAppointmentsRequest;
 use App\Http\Resources\AppointmentsResource;
-use App\Models\Appointments;
 use App\Services\Contracts\AppointmentsServiceInterface;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class AppointmentsController extends Controller
 {
@@ -36,14 +31,16 @@ class AppointmentsController extends Controller
     public function store(StoreAppointmentsRequest $request)
     {
         return response()->json(
-            new AppointmentsResource($this->appointmentsService->createAppointment($request->all()))
+            new AppointmentsResource($this->appointmentsService->createAppointment($request->all())),
+            201
         );
     }
 
     public function update(UpdateAppointmentsRequest $request, int $idAppointment)
     {
-        $this->appointmentsService->updateAppointment($request->all(), $idAppointment);
-        return response()->noContent();
+        return response()->json([
+            new AppointmentsResource($this->appointmentsService->updateAppointment($request->all(), $idAppointment))
+        ]);
     }
 
     public function cancel(int $idAppointment)

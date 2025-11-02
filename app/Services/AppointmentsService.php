@@ -3,8 +3,9 @@
 namespace App\Services;
 use App\Exceptions\AppointmentsException;
 use App\Mail\AppointmentMail;
-use App\Models\Appointments;
+use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentsRepositoryInterface;
+use App\Services\Contracts\AppointmentsPriceCalculatorInterface;
 use App\Services\Contracts\AppointmentsServiceInterface;
 use App\Validations\AppointmentsValidation;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -16,6 +17,7 @@ class AppointmentsService implements AppointmentsServiceInterface
     public function __construct(
         private AppointmentsRepositoryInterface $appointmentsRepository,
         private AppointmentsValidation $appointmentsValidation,
+        private AppointmentsPriceCalculatorInterface $appointmentsPriceCalculator,
     )
     {}
 
@@ -26,25 +28,32 @@ class AppointmentsService implements AppointmentsServiceInterface
 
     /**
      * @param int $idAppointment
-     * @return ?Appointments
+     * @return ?Appointment
      * @throws AppointmentsException
      */
-    public function listAppointmentById(int $idAppointment): ?Appointments
+    public function listAppointmentById(int $idAppointment): ?Appointment
     {
-        $this->appointmentsValidation->ensureIfAppointmentExists($idAppointment);
-        return $this->appointmentsRepository->getAppointmentById($idAppointment);
+        return $this->appointmentsValidation->ensureIfAppointmentExists($idAppointment);
     }
 
     /**
      * @param array $data
-     * @return Appointments
+     * @return Appointment
      * @throws AppointmentsException
      */
-    public function createAppointment(array $data): Appointments
+    public function createAppointment(array $data): Appointment
     {
+        $totalPrice = $this->appointmentsPriceCalculator->calculate($data['services'] ?? []);
+        $data['total_price'] = $totalPrice;
+
         $this->appointmentsValidation->ensureAppointmentExists($data);
+
         $appointmentCreated = DB::transaction(function () use ($data) {
-            return $this->appointmentsRepository->createAppointment($data);
+            $appointment = $this->appointmentsRepository->createAppointment($data);
+
+            $this->appointmentsRepository->syncServices($appointment, $data['services']);
+
+            return $appointment;
         });
 
         if ($appointmentCreated && $appointmentCreated->user) {
@@ -52,7 +61,7 @@ class AppointmentsService implements AppointmentsServiceInterface
                 ->queue(new AppointmentMail($appointmentCreated->user->name, $appointmentCreated->title));
         }
 
-        return $appointmentCreated;
+        return $this->appointmentsRepository->loadRelations($appointmentCreated);
     }
 
     /**
@@ -61,10 +70,24 @@ class AppointmentsService implements AppointmentsServiceInterface
      * @return void
      * @throws AppointmentsException
      */
-    public function updateAppointment(array $data, int $idAppointment): void
+    public function updateAppointment(array $data, int $idAppointment): Appointment
     {
-        $this->appointmentsValidation->ensureIfAppointmentExists($idAppointment);
-        $this->appointmentsRepository->updateAppointment($data, $idAppointment);
+        $appointment = $this->appointmentsValidation->ensureIfAppointmentExists($idAppointment);
+
+        $totalPrice = $this->appointmentsPriceCalculator->calculate($data['services'] ?? []);
+        $data['total_price'] = $totalPrice;
+
+        $appointmentUpdated = DB::transaction(function () use ($data, $idAppointment, $appointment) {
+
+            $appointmentUpdate = $this->appointmentsRepository->updateAppointment($data, $idAppointment);
+            if (array_key_exists('services', $data)) {
+                $this->appointmentsRepository->syncServices($appointment, $data['services']);
+            }
+
+            return $appointmentUpdate;
+        });
+
+        return $this->appointmentsRepository->loadRelations($appointmentUpdated);
     }
 
     public function cancelAppointment(int $idAppointment): void

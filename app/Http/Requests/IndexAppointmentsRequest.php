@@ -22,7 +22,7 @@ class IndexAppointmentsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'per_page' => 'required',
+            'per_page' => 'required|numeric',
         ];
     }
 }

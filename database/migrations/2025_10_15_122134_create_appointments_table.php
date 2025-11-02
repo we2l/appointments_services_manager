@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->dateTime('scheduled_at')->nullable();
             $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->decimal('total_price', 10, 2)->default(0.00);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');

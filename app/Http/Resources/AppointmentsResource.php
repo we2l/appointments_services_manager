@@ -15,10 +15,14 @@ class AppointmentsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id'            => $this->id,
             'title'         => $this->title,
-            'scheduled_at'  => $this->scheduled_at->format('d/m/Y H:i:s'),
+            'scheduled_at'  => $this->scheduled_at?->format('d/m/Y H:i:s'),
             'status'        => $this->status,
-            'user_id'       => $this->user_id
+            'total_price'   => $this->total_price,
+            'user_id'       => $this->user_id,
+            'user'          => new UserResource($this->whenLoaded('user')),
+            'services'       => ServicesResource::collection($this->whenLoaded('services')),
         ];
     }
 }

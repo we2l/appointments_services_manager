@@ -4,7 +4,7 @@ namespace App\Validations;
 
 use App\Enums\MessageExceptionEnum;
 use App\Exceptions\AppointmentsException;
-use App\Models\Appointments;
+use App\Models\Appointment;
 use App\Repositories\Contracts\AppointmentsRepositoryInterface;
 use Carbon\Carbon;
 
@@ -20,12 +20,14 @@ readonly class AppointmentsValidation
      * @return void
      * @throws AppointmentsException
      */
-    public function ensureIfAppointmentExists(int $idAppointment) : void
+    public function ensureIfAppointmentExists(int $idAppointment): Appointment
     {
         $appointment = $this->appointmentsRepository->getAppointmentById($idAppointment);
         if(!$appointment) {
             throw new AppointmentsException(MessageExceptionEnum::APPOINTMENT_NOT_FOUND->value);
         }
+
+        return $appointment;
     }
 
     /**

@@ -22,10 +22,12 @@ class UpdateAppointmentsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255|min:3',
-            'user_id' => 'nullable|exists:users,id',
-            'scheduled_at' => 'nullable|date',
-            'status' => 'nullable|in:pending,confirmed,cancelled',
+            'title' => 'string|max:255|min:3',
+            'user_id' => 'exists:users,id',
+            'scheduled_at' => 'date',
+            'status' => 'in:pending,confirmed,cancelled',
+            'services' => 'sometimes|present|array',
+            'services.*' => 'integer|exists:services,id'
         ];
     }
 }
