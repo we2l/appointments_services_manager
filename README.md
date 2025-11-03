@@ -41,7 +41,7 @@ Siga estes passos para configurar e rodar o ambiente de desenvolvimento localmen
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPOSITORIO]
+    git clone git@github.com:we2l/appointments_services_manager.git
     cd appointments_services_manager
     ```
 
