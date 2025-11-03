@@ -52,7 +52,7 @@ class AppointmentsRepository implements AppointmentsRepositoryInterface
 
     public function getAppointmentById(int $id): ?Appointment
     {
-        return Appointment::find($id);
+        return Appointment::with('user', 'services')->find($id);
     }
 
     public function userHasAppointmentAt(int $userId, string $scheduledAt): bool

@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Models\Service;
 use App\Repositories\Contracts\ServicesRepositoryInterface;
 use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class ServicesRepository implements ServicesRepositoryInterface
 {
@@ -34,11 +33,10 @@ class ServicesRepository implements ServicesRepositoryInterface
 
     public function updateServiceById(array $data, int $idService): Service
     {
-        return Service::where('id', $idService)
-            ->update([
-                'name' => $data['name'],
-                'price' => $data['price']
-            ]);
+        $service = $this->getServiceById($idService);
+        $service->update($data);
+
+        return $service;
     }
 
     public function deleteServiceById(int $idService): void

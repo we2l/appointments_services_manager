@@ -3,7 +3,9 @@
 namespace App\Validations;
 
 use App\Enums\MessageExceptionEnum;
-use App\Exceptions\ServicesException;
+use App\Exceptions\ServiceInUseException;
+use App\Exceptions\ServiceNotFoundException;
+use App\Models\Service;
 use App\Repositories\Contracts\ServicesRepositoryInterface;
 
 readonly class ServicesValidation
@@ -16,31 +18,32 @@ readonly class ServicesValidation
     /**
      * @param int $idService
      * @return void
-     * @throws ServicesException
+     * @throws ServiceNotFoundException
+     * @throws ServiceInUseException
      */
     public function validateIfServiceCantBeDeleted(int $idService): void
     {
-        $service = $this->servicesRepository->getServiceById($idService);
-        if(!$service) {
-            throw new ServicesException(MessageExceptionEnum::SERVICE_NOT_FOUND->value);
-        }
+        $this->ensureServiceExists($idService);
 
         $isInUse = $this->servicesRepository->isServiceInUse($idService);
+
         if($isInUse) {
-            throw new ServicesException(MessageExceptionEnum::SERVICE_IN_USE->value);
+            throw new ServiceInUseException(MessageExceptionEnum::SERVICE_IN_USE->value);
         }
     }
 
     /**
      * @param int $idService
-     * @return void
-     * @throws ServicesException
+     * @return Service
+     * @throws ServiceNotFoundException
      */
-    public function ensureServiceExists(int $idService): void
+    public function ensureServiceExists(int $idService): Service
     {
         $service = $this->servicesRepository->getServiceById($idService);
         if(!$service) {
-            throw new ServicesException(MessageExceptionEnum::SERVICE_NOT_FOUND->value);
+            throw new ServiceNotFoundException(MessageExceptionEnum::SERVICE_NOT_FOUND->value);
         }
+
+        return $service;
     }
 }

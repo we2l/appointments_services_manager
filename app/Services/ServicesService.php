@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Exceptions\ServicesException;
+use App\Exceptions\ServiceInUseException;
+use App\Exceptions\ServiceNotFoundException;
 use App\Models\Service;
 use App\Repositories\Contracts\ServicesRepositoryInterface;
 use App\Services\Contracts\ServicesServiceInterface;
@@ -25,7 +26,7 @@ readonly class ServicesService implements ServicesServiceInterface
     /**
      * @param int $idService
      * @return ?Service
-     * @throws ServicesException
+     * @throws ServiceNotFoundException
      */
     public function listServiceById(int $idService): ?Service
     {
@@ -40,7 +41,7 @@ readonly class ServicesService implements ServicesServiceInterface
 
     /**
      * @param int $idService
-     * @throws ServicesException
+     * @throws ServiceNotFoundException
     */
     public function updateService(array $data, int $idService): Service
     {
@@ -51,8 +52,9 @@ readonly class ServicesService implements ServicesServiceInterface
     /**
      * @param int $idService
      * @return void
-     * @throws ServicesException
-     */
+     * @throws ServiceNotFoundException
+     * @throws ServiceInUseException
+    */
     public function deleteService(int $idService): void
     {
         $this->servicesValidation->validateIfServiceCantBeDeleted($idService);

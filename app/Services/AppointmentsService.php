@@ -33,7 +33,7 @@ class AppointmentsService implements AppointmentsServiceInterface
      */
     public function listAppointmentById(int $idAppointment): ?Appointment
     {
-        return $this->appointmentsValidation->ensureIfAppointmentExists($idAppointment);
+        return $this->appointmentsValidation->ensureAppointmentExists($idAppointment);
     }
 
     /**
@@ -46,7 +46,7 @@ class AppointmentsService implements AppointmentsServiceInterface
         $totalPrice = $this->appointmentsPriceCalculator->calculate($data['services'] ?? []);
         $data['total_price'] = $totalPrice;
 
-        $this->appointmentsValidation->ensureAppointmentExists($data);
+        $this->appointmentsValidation->ensureUserCanBookAt($data);
 
         $appointmentCreated = DB::transaction(function () use ($data) {
             $appointment = $this->appointmentsRepository->createAppointment($data);
@@ -72,7 +72,7 @@ class AppointmentsService implements AppointmentsServiceInterface
      */
     public function updateAppointment(array $data, int $idAppointment): Appointment
     {
-        $appointment = $this->appointmentsValidation->ensureIfAppointmentExists($idAppointment);
+        $appointment = $this->appointmentsValidation->ensureAppointmentExists($idAppointment);
 
         $totalPrice = $this->appointmentsPriceCalculator->calculate($data['services'] ?? []);
         $data['total_price'] = $totalPrice;

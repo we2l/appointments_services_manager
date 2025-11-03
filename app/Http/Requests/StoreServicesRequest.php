@@ -3,7 +3,20 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
+#[
+    OA\Schema(
+        schema: "StoreServicesRequest",
+        title: "Store Service Request",
+        description: "Payload para criar um novo serviço",
+        required: ["name", "price"],
+        properties: [
+            new OA\Property(property: "name", type: "string", example: "Equipamento"),
+            new OA\Property(property: "price", type: "number", format: "float", example: 120.50)
+        ]
+    )
+]
 class StoreServicesRequest extends FormRequest
 {
     /**

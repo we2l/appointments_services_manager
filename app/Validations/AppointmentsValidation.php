@@ -20,7 +20,7 @@ readonly class AppointmentsValidation
      * @return void
      * @throws AppointmentsException
      */
-    public function ensureIfAppointmentExists(int $idAppointment): Appointment
+    public function ensureAppointmentExists(int $idAppointment): Appointment
     {
         $appointment = $this->appointmentsRepository->getAppointmentById($idAppointment);
         if(!$appointment) {
@@ -35,7 +35,7 @@ readonly class AppointmentsValidation
      * @return void
      * @throws AppointmentsException
      */
-    public function ensureAppointmentExists(array $data) : void
+    public function ensureUserCanBookAt(array $data) : void
     {
         $hasConflitTime = $this->appointmentsRepository->userHasAppointmentAt($data['user_id'], $data['scheduled_at']);
         if($hasConflitTime) {

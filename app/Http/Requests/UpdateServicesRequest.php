@@ -3,7 +3,19 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
+#[
+    OA\Schema(
+        schema: "UpdateServicesRequest",
+        title: "Update Service Request",
+        description: "Payload para atualizar um serviço",
+        properties: [
+            new OA\Property(property: "name", type: "string", example: "Equipmento"),
+            new OA\Property(property: "price", type: "number", format: "float", example: 150.00)
+        ]
+    )
+]
 class UpdateServicesRequest extends FormRequest
 {
     /**
